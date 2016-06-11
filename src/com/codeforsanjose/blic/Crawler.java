@@ -115,10 +115,7 @@ public class Crawler implements Runnable {
             if (tempUrlString.startsWith("http://") || tempUrlString.startsWith("https://")) {
                 res = new URL(tempUrlString);
             }
-
         } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
             e.printStackTrace();
         }
         return res;

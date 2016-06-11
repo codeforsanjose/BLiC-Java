@@ -49,6 +49,7 @@ public class Main {
 
         // populate the initial list of links to crawl
         WebPage w = getNextWebPage();
+        startCrawler(w);
 
         try {
             executor.awaitTermination(30, TimeUnit.SECONDS);
