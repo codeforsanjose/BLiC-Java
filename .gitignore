@@ -30,7 +30,12 @@ hs_err_pid*
 .idea/dynamic.xml
 .idea/uiDesigner.xml
 
-# Gradle:
+# Gradle
+.gradle
+/build
+/buildSrc/build
+/subprojects/*/build
+/subprojects/docs/src/samples/*/*/build
 .idea/gradle.xml
 .idea/libraries
 

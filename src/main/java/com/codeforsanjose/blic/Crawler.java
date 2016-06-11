@@ -105,7 +105,7 @@ public class Crawler implements Runnable {
         return res;
     }
 
-    private URL parseUrl(String dirtyUrl) {
+    public static URL parseUrl(String dirtyUrl) {
         String tempUrlString = dirtyUrl;
         URL res = null;
         try {

@@ -13,9 +13,10 @@ public class Main {
     static Map<URL, WebPage> pages;
     static ThreadPoolExecutor executor;
     static int depth_limit = 3;
-    static int max_thread_limit = 10;
+    static boolean useFixedThreadPool;
+    static int max_thread_limit;
     static int threads_running_count = 0;
-    static int fail_tolerance = 3;
+    static int fail_tolerance = 5;
     static URL base_url;
 
     public static void main(String[] args) {
@@ -28,6 +29,10 @@ public class Main {
             return;
         }
         String arg_url = args[0];
+
+        useFixedThreadPool = true;
+        max_thread_limit = 2;
+
         System.out.println("BLiC : "+arg_url);
         System.out.println("Please wait. This may take some time.");
 
@@ -43,9 +48,11 @@ public class Main {
 
         //printSiteStatuses();
 
-        //executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(max_thread_limit);
-        executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
-
+        if (useFixedThreadPool){
+            executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+        } else {
+            executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(max_thread_limit);
+        }
 
         // populate the initial list of links to crawl
         WebPage w = getNextWebPage();
@@ -66,8 +73,6 @@ public class Main {
             }
             running = !isDone();
         }
-
-
 
         try {
             executor.shutdown();
