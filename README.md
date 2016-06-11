@@ -3,7 +3,7 @@
 
 The program uses multithreading, retries if it is unable to connect to a webpage or gets a 429 HTTP response code ("too many requests"), and gives a report at the end showing each link tried, along with the result.
 
-To build an executable .jar file, run clone the project, then run this command:
+To build an executable .jar file, first clone the project, then run this command:
 
     ./gradlew fatJar
     
