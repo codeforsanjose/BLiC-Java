@@ -1,12 +1,19 @@
 package com.codeforsanjose.blic;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.net.MalformedURLException;
 
 public class Main {
 
+    private static final Logger log = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
-        System.out.println("Broken Link Checker");
+        log.info("\n"
+                +"+-------------------------------------------+\n"
+                +"|            Broken Link Checker            |\n"
+                +"+-------------------------------------------+");
 
         String arg_url;
         Integer arg_depth_limit = null;
@@ -62,6 +69,7 @@ public class Main {
         c.crawl();
         for (String s : c.getResults()) {
             System.out.println(s);
+            log.info(s);
         }
     }
 

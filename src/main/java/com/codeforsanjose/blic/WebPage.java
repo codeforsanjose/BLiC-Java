@@ -5,9 +5,6 @@ import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Created by falconer_k on 6/10/16.
- */
 public class WebPage {
     private AtomicBoolean locked;
     private WebPage linkedFromPage;

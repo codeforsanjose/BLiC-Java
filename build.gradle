@@ -24,8 +24,10 @@ dependencies {
     // testCompile dependency to testCompile 'org.testng:testng:6.8.1' and add
     // 'test.useTestNG()' to your build script.
     testCompile 'junit:junit:4.12'
-}
 
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.6.1'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.6.1'
+}
 
 
 

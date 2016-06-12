@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn">
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout
+                    pattern="[%-5level] %d{yyyyMMdd-HHmmss} [%t] %M- %msg%n" />
+        </Console>
+        <RollingFile name="rollingfile" fileName="/Users/kylefalconer/git/BLiC-Java/logs/debug.log"
+                     filePattern="/Users/kylefalconer/git/BLiC-Java/logs/debug-%d{yyyyMMddHHmmss}.log">
+            <PatternLayout>
+                <pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss} [%t] %M- %msg%n
+                </pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Root level="debug">
+            <AppenderRef ref="console" level="all"/>
+            <AppenderRef ref="rollingfile" level="all"/>
+        </Root>
+    </Loggers>
+</Configuration>

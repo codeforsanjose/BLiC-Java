@@ -1,5 +1,8 @@
 package com.codeforsanjose.blic;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,6 +23,7 @@ public class CrawlController {
     private int crawler_id;
     private int fail_tolerance;
     private URL base_url;
+    private static final Logger log = LogManager.getLogger(CrawlController.class);
 
     public CrawlController(String base_url, int depth_limit) throws MalformedURLException {
         this.base_url = new URL(base_url);
@@ -61,7 +65,7 @@ public class CrawlController {
         boolean running = true;
         while (running) {
             w = getNextWebPage();
-            //System.out.println("\r"+executor.getActiveCount()+" threads running");
+            log.trace(executor.getActiveCount()+" threads running");
             if (w != null) {
                 startCrawler(w);
             }
@@ -71,7 +75,7 @@ public class CrawlController {
         try {
             executor.shutdown();
             executor.awaitTermination(60, TimeUnit.SECONDS);
-            System.out.println("done: " + isDone());
+            log.debug("done: " + isDone());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -128,12 +132,14 @@ public class CrawlController {
                 return false;
             }
         }
-        if (executor.getActiveCount() != 0) {
+        int t_running = executor.getActiveCount();
+        if (t_running != 0) {
             // printing here spams the shell output
+            log.debug("No additional items need work, but "+t_running+" threads are still running");
             // System.out.println("Some threads are still running");
             return false;
         }
-        System.out.println("Found no items in the list that needed work.");
+        log.debug("Found no items in the list that needed work.");
         return true;
     }
 }

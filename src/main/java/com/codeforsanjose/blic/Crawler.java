@@ -6,18 +6,17 @@ import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
-/**
- * Created by falconer_k on 6/10/16.
- */
 public class Crawler implements Runnable {
     private final URL base;
     private WebPage webpage;
@@ -25,6 +24,7 @@ public class Crawler implements Runnable {
     private int id;
     private int depth_limit;
     private Map<URL, WebPage> pages;
+    private static final Logger log = LogManager.getLogger(Crawler.class);
 
     public Crawler(int id, WebPage webpage, Map<URL, WebPage> pages, URL base, int depth_limit) {
         this.id = id;
@@ -43,7 +43,7 @@ public class Crawler implements Runnable {
             try {
                 TimeUnit.SECONDS.sleep(this.webpage.getFailureCount());
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                log.warn(e);
             }
         }
         try {
@@ -53,10 +53,10 @@ public class Crawler implements Runnable {
                 this.webpage.unlock();
                 return;
             }
-            //System.out.println("\n" + id + ": Crawling " + this.name);
+            log.info(id + ": Crawling " + this.name);
             Elements anchors = doc.select("a");
             ArrayList<URL> unseenLinks = filterUnseen(anchors);
-            //System.out.println("\n" + id + ": Found " + unseenLinks.size() + " new links on page");
+            log.info(id + ": Found " + unseenLinks.size() + " new links on page");
             for (URL u : unseenLinks) {
                 if (u != null && !this.pages.containsKey(u)) {
                     if (this.depth_limit > this.webpage.getDepth()) {
@@ -73,19 +73,19 @@ public class Crawler implements Runnable {
             this.webpage.failureCountIncrement();
             this.webpage.setStatus(e.getStatusCode());
             this.webpage.setFailReason(e.toString());
-            System.out.println(e.getMessage());
+            log.warn(e);
         } catch (SocketException e) {
             this.webpage.failureCountIncrement();
             this.webpage.setStatus(-1);
             this.webpage.setFailReason(e.toString());
-            System.out.println(e.getMessage());
+            log.warn(e);
         } catch (IOException e) {
             this.webpage.failureCountIncrement();
             this.webpage.setStatus(-1);
             this.webpage.setFailReason(e.toString());
-            System.out.println(e.getMessage());
+            log.warn(e);
         }
-        System.out.println(webpage.toString());
+        log.info(webpage.toString());
         this.webpage.unlock();
     }
 
@@ -115,7 +115,7 @@ public class Crawler implements Runnable {
                 res = new URL(tempUrlString);
             }
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.warn(e);
         }
         return res;
     }
