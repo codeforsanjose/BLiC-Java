@@ -60,12 +60,12 @@ public class CrawlController {
         } else {
             executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         }
-        
+
         WebPage w = null;
         boolean running = true;
         while (running) {
             w = getNextWebPage();
-            log.trace(executor.getActiveCount()+" threads running");
+            log.trace(executor.getActiveCount() + " threads running");
             if (w != null) {
                 startCrawler(w);
             }
@@ -92,7 +92,7 @@ public class CrawlController {
 
     private void startCrawler(WebPage page) {
         Crawler task = new Crawler(++crawler_id, page, pages, this.base_url, this.depth_limit);
-        // System.out.println("A new crawler has been added : " + task.getName());
+        log.trace("A new crawler has been added : " + task.toString());
         executor.execute(task);
     }
 
@@ -134,12 +134,10 @@ public class CrawlController {
         }
         int t_running = executor.getActiveCount();
         if (t_running != 0) {
-            // printing here spams the shell output
-            log.debug("No additional items need work, but "+t_running+" threads are still running");
-            // System.out.println("Some threads are still running");
+            log.trace("No additional items need work, but " + t_running + " threads are still running");
             return false;
         }
-        log.debug("Found no items in the list that needed work.");
+        log.debug("Found no more items in the list that needed work.");
         return true;
     }
 }

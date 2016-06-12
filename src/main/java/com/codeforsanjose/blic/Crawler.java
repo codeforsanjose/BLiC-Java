@@ -6,14 +6,15 @@ import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -47,7 +48,10 @@ public class Crawler implements Runnable {
             }
         }
         try {
-            doc = Jsoup.connect(this.webpage.getUrl().toString()).get();
+            doc = Jsoup.connect(this.webpage.getUrl().toString())
+                    .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1")
+                    .referrer("http://www.google.com")
+                    .get();
             if (!this.shouldCrawlPage()) {
                 this.webpage.setStatus(200);
                 this.webpage.unlock();
@@ -118,5 +122,9 @@ public class Crawler implements Runnable {
             log.warn(e);
         }
         return res;
+    }
+
+    public String toString() {
+        return this.webpage.toString();
     }
 }

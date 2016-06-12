@@ -11,9 +11,9 @@ public class Main {
 
     public static void main(String[] args) {
         log.info("\n"
-                +"+-------------------------------------------+\n"
-                +"|            Broken Link Checker            |\n"
-                +"+-------------------------------------------+");
+                + "+-------------------------------------------+\n"
+                + "|            Broken Link Checker            |\n"
+                + "+-------------------------------------------+");
 
         String arg_url;
         Integer arg_depth_limit = null;
@@ -61,6 +61,8 @@ public class Main {
             }
         }
 
+        log.debug("args : " + String.join(",", args));
+
         if (c == null) {
             System.out.println(getUsage());
             System.exit(-1);
@@ -73,18 +75,18 @@ public class Main {
         }
     }
 
-    public static String getUsage(){
+    public static String getUsage() {
         return
-          "usage: blic.jar [url] [depth limit] [fail tolerance] [max thread limit]\n"
-         +"\turl:               the URL of a website to be checked for broken links.\n"
-         +"\tdepth limit:       optional number defining how far links should be\n"
-         +"\t                    traversed before stopping\n\n"
-         +"\tfail tolerance:    optional number defining how many retry attempts\n"
-         +"\t                    should be made for a URL that fails to respond in\n"
-         +"\t                    an expected manner.\n\n"
-         +"\tmax thread limit:  optional number that disables the dynamic thread\n"
-         +"\t                    management and defines the max number of threads\n"
-         +"\t                    to be used\n";
+                "usage: blic.jar [url] [depth limit] [fail tolerance] [max thread limit]\n"
+                        + "\turl:               the URL of a website to be checked for broken links.\n"
+                        + "\tdepth limit:       optional number defining how far links should be\n"
+                        + "\t                    traversed before stopping\n\n"
+                        + "\tfail tolerance:    optional number defining how many retry attempts\n"
+                        + "\t                    should be made for a URL that fails to respond in\n"
+                        + "\t                    an expected manner.\n\n"
+                        + "\tmax thread limit:  optional number that disables the dynamic thread\n"
+                        + "\t                    management and defines the max number of threads\n"
+                        + "\t                    to be used\n";
     }
 
     /**
