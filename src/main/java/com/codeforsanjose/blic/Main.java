@@ -15,10 +15,7 @@ public class Main {
         CrawlController c = null;
 
         if (args.length == 0) {
-            System.out.println("Please provide the URL of a website to be checked for broken links.");
-            System.out.println("The URL would be the first argument passed into the program when run in the command line.");
-            System.out.println("Example usage:");
-            System.out.println("java -jar blic.jar http://codeforsanjose.com/");
+            System.out.println(getUsage());
             System.exit(-1);
         } else if (args.length == 1) {
             arg_url = args[0];
@@ -58,6 +55,7 @@ public class Main {
         }
 
         if (c == null) {
+            System.out.println(getUsage());
             System.exit(-1);
         }
 
@@ -67,7 +65,19 @@ public class Main {
         }
     }
 
-    ;
+    public static String getUsage(){
+        return
+          "usage: blic.jar [url] [depth limit] [fail tolerance] [max thread limit]\n"
+         +"\turl:               the URL of a website to be checked for broken links.\n"
+         +"\tdepth limit:       optional number defining how far links should be\n"
+         +"\t                    traversed before stopping\n\n"
+         +"\tfail tolerance:    optional number defining how many retry attempts\n"
+         +"\t                    should be made for a URL that fails to respond in\n"
+         +"\t                    an expected manner.\n\n"
+         +"\tmax thread limit:  optional number that disables the dynamic thread\n"
+         +"\t                    management and defines the max number of threads\n"
+         +"\t                    to be used\n";
+    }
 
     /**
      * Try to parse an integer from args at position argn

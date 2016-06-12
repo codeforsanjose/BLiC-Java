@@ -56,8 +56,7 @@ public class CrawlController {
         } else {
             executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         }
-
-
+        
         WebPage w = null;
         boolean running = true;
         while (running) {
