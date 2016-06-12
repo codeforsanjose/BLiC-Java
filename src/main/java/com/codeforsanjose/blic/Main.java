@@ -1,139 +1,90 @@
 package com.codeforsanjose.blic;
 
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class Main {
 
-    static Map<URL, WebPage> pages;
-    static ThreadPoolExecutor executor;
-    static int depth_limit = 3;
-    static boolean useFixedThreadPool;
-    static int max_thread_limit;
-    static int threads_running_count = 0;
-    static int fail_tolerance = 5;
-    static URL base_url;
 
     public static void main(String[] args) {
-        // System.out.println("Broken Link Checker");
-        if (args.length < 1) {
+        System.out.println("Broken Link Checker");
+
+        String arg_url;
+        Integer arg_depth_limit = null;
+        Integer arg_fail_tolerance = null;
+        Integer max_thread_limit = null;
+        CrawlController c = null;
+
+        if (args.length == 0) {
             System.out.println("Please provide the URL of a website to be checked for broken links.");
             System.out.println("The URL would be the first argument passed into the program when run in the command line.");
             System.out.println("Example usage:");
-            System.out.println("java -jar blic.jar http://codeforsanjose.com/");    // FIXME: export this project to a jar
-            return;
-        }
-        String arg_url = args[0];
-
-        useFixedThreadPool = true;
-        max_thread_limit = 2;
-
-        System.out.println("BLiC : "+arg_url);
-        System.out.println("Please wait. This may take some time.");
-
-        try {
-            base_url = new URL(arg_url);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        pages = new ConcurrentHashMap<URL, WebPage>();
-        pages.put(base_url, new WebPage(null, base_url));
-
-        //printSiteStatuses();
-
-        if (useFixedThreadPool){
-            executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
-        } else {
-            executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(max_thread_limit);
-        }
-
-        // populate the initial list of links to crawl
-        WebPage w = getNextWebPage();
-        startCrawler(w);
-
-        try {
-            executor.awaitTermination(30, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        boolean running = true;
-        while (running) {
-            w = getNextWebPage();
-            //System.out.println("\r"+executor.getActiveCount()+" threads running");
-            if (w != null){
-                startCrawler(w);
+            System.out.println("java -jar blic.jar http://codeforsanjose.com/");
+            System.exit(-1);
+        } else if (args.length == 1) {
+            arg_url = args[0];
+            arg_depth_limit = 3;
+            try {
+                c = new CrawlController(arg_url, arg_depth_limit);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
             }
-            running = !isDone();
-        }
-
-        try {
-            executor.shutdown();
-            executor.awaitTermination(60, TimeUnit.SECONDS);
-            System.out.println("done: " + isDone());
-            printSiteStatuses();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private static WebPage getNextWebPage() {
-        for (Object o : pages.entrySet()) {
-            Map.Entry<String, WebPage> cur = (Map.Entry<String, WebPage>) o;
-            WebPage w = cur.getValue();
-
-            if (!w.isLocked() && w.getStatus() == null && w.getDepth() <= depth_limit) {
-                w.lock();
-                return w;
-            } else if (!w.isLocked() && w.getStatus() != null && (w.getFailureCount() < fail_tolerance && (w.getStatus() == -1 || w.getStatus() == 429))){
-                w.lock();
-                return w;
+        } else if (args.length == 2) {
+            arg_url = args[0];
+            arg_depth_limit = parseArgInt(args, 1, "Second argument (depth limit) must be a valid integer");
+            try {
+                c = new CrawlController(arg_url, arg_depth_limit);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        } else if (args.length == 3) {
+            arg_url = args[0];
+            arg_depth_limit = parseArgInt(args, 1, "Second argument (depth limit) must be a valid integer");
+            arg_fail_tolerance = parseArgInt(args, 2, "Third argument (fail tolerance) must be a valid integer");
+            try {
+                c = new CrawlController(arg_url, arg_depth_limit, arg_fail_tolerance);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        } else if (args.length == 4) {
+            arg_url = args[0];
+            arg_depth_limit = parseArgInt(args, 1, "Second argument (depth limit) must be a valid integer");
+            arg_fail_tolerance = parseArgInt(args, 2, "Third argument (fail tolerance) must be a valid integer");
+            max_thread_limit = parseArgInt(args, 3, "Third argument (max thread limit) must be a valid integer");
+            try {
+                c = new CrawlController(arg_url, arg_depth_limit, arg_fail_tolerance, max_thread_limit);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
             }
         }
-        return null;
-    }
 
-    private static void printWorkerSummary(){
-
-        System.out.println("\r "+executor.getActiveCount());
-    }
-
-    private static void startCrawler(WebPage page) {
-
-        Crawler task = new Crawler(++threads_running_count, page, pages);
-        // System.out.println("A new crawler has been added : " + task.getName());
-        executor.execute(task);
-    }
-
-    private static boolean isDone() {
-        for (Object o : pages.entrySet()) {
-            Map.Entry<String, WebPage> cur = (Map.Entry<String, WebPage>) o;
-            WebPage w = cur.getValue();
-            if ( w.getStatus() == null) {
-                return false;
-            }
+        if (c == null) {
+            System.exit(-1);
         }
-        if (executor.getActiveCount()==0){
-            System.out.println("No threads are currently running");
-            return true;
+
+        c.crawl();
+        for (String s : c.getResults()) {
+            System.out.println(s);
         }
-        System.out.println("Found no items in the list that needed work.");
-        return true;
     }
 
-    private static void printSiteStatuses() {
-        for (Object o : pages.entrySet()) {
-            Map.Entry<String, WebPage> cur = (Map.Entry<String, WebPage>) o;
-            System.out.println(cur.getValue().toString());
+    ;
+
+    /**
+     * Try to parse an integer from args at position argn
+     *
+     * @param args       the array of strings containing the number to be parsed
+     * @param argn       array position in args that should be parsed
+     * @param errmessage message to be written to the console if parsing the integer fails
+     * @return null if unable to parse the int from the given String
+     */
+    static Integer parseArgInt(String[] args, int argn, String errmessage) {
+        Integer res = null;
+        try {
+            res = Integer.parseInt(args[argn]);
+        } catch (NumberFormatException nfe) {
+            System.out.println(errmessage);
         }
+        return res;
     }
 
 }

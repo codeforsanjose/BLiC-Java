@@ -19,21 +19,20 @@ import java.util.concurrent.TimeUnit;
  * Created by falconer_k on 6/10/16.
  */
 public class Crawler implements Runnable {
+    private final URL base;
     private WebPage webpage;
     private String name;
     private int id;
+    private int depth_limit;
     private Map<URL, WebPage> pages;
 
-    public Crawler(int id, WebPage webpage, Map<URL, WebPage> pages) {
+    public Crawler(int id, WebPage webpage, Map<URL, WebPage> pages, URL base, int depth_limit) {
         this.id = id;
+        this.base = base;
         this.webpage = webpage;
+        this.depth_limit = depth_limit;
         this.name = this.webpage.getUrl().toString();
         this.pages = pages;
-    }
-
-
-    public String getName() {
-        return this.name;
     }
 
     @Override
@@ -60,7 +59,7 @@ public class Crawler implements Runnable {
             //System.out.println("\n" + id + ": Found " + unseenLinks.size() + " new links on page");
             for (URL u : unseenLinks) {
                 if (u != null && !this.pages.containsKey(u)) {
-                    if (Main.depth_limit > this.webpage.getDepth()) {
+                    if (this.depth_limit > this.webpage.getDepth()) {
                         WebPage w = new WebPage(this.webpage, u);
                         w.setDepth(this.webpage.getDepth() + 1);
                         this.pages.put(u, w);
@@ -91,7 +90,7 @@ public class Crawler implements Runnable {
     }
 
     private boolean shouldCrawlPage() {
-        return this.webpage.getUrl().getHost().equals(Main.base_url.getHost());
+        return this.webpage.getUrl().getHost().equals(base.getHost());
     }
 
     private ArrayList<URL> filterUnseen(Elements anchors) {
