@@ -5,8 +5,8 @@
             <PatternLayout
                     pattern="[%-5level] %d{yyyyMMdd-HHmmss} [%t] %M- %msg%n" />
         </Console>
-        <RollingFile name="rollingfile" fileName="/Users/kylefalconer/git/BLiC-Java/logs/debug.log"
-                     filePattern="/Users/kylefalconer/git/BLiC-Java/logs/debug-%d{yyyyMMddHHmmss}.log">
+        <RollingFile name="rollingfile" fileName="./logs/debug.log"
+                     filePattern="./logs/debug-%d{yyyyMMddHHmmss}.log">
             <PatternLayout>
                 <pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss} [%t] %M- %msg%n
                 </pattern>

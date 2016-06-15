@@ -1,5 +1,7 @@
 package com.codeforsanjose.blic;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
@@ -8,15 +10,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.SocketException;
-import java.net.URL;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 public class Crawler implements Runnable {
     private final URL base;
@@ -51,7 +48,14 @@ public class Crawler implements Runnable {
             doc = Jsoup.connect(this.webpage.getUrl().toString())
                     .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1")
                     .referrer("http://www.google.com")
+                    .followRedirects(true)
+                    .ignoreContentType(true)
                     .get();
+            URL actual_url = new URL(doc.location());
+            if (urlEquals(base, actual_url)){
+                this.webpage.setStatus(404);
+                this.webpage.setFailReason("Redirected to homepage unexpectedly");
+            }
             if (!this.shouldCrawlPage()) {
                 this.webpage.setStatus(200);
                 this.webpage.unlock();
@@ -106,6 +110,20 @@ public class Crawler implements Runnable {
             }
         }
         return res;
+    }
+
+    public static boolean urlEquals(URL url1, URL url2) throws MalformedURLException {
+        URL url1QueryStripped = getUrlWithoutParameters(url1);
+        URL url2QueryStripped = getUrlWithoutParameters(url2);
+        return (url1QueryStripped.equals(url2QueryStripped));
+    }
+
+    private static URL getUrlWithoutParameters(URL url) throws MalformedURLException {
+        // see https://docs.oracle.com/javase/tutorial/networking/urls/urlInfo.html
+        return new URL(url.getProtocol(),
+                url.getAuthority(),
+                url.getFile());
+
     }
 
     public static URL parseUrl(String dirtyUrl) {

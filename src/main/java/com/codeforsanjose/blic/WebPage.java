@@ -85,7 +85,7 @@ public class WebPage {
             parentUrl = "parent: \"" + this.linkedFromPage.getUrl().toString() + "\", ";
         }
         String status_string = (this.status == null) ? "not yet checked" : this.status.toString();
-        return "http_status: " + status_string + ", failure_count: " + this.failCount + ", " + parentUrl + " url:\"" + this.url.toString() + "\"";
+        return "http_status: " + status_string + ", failure_count: " + this.failCount + ", " + parentUrl + ", url:\"" + this.url.toString() + ", failure_reason:\"" + this.failReason + "\"";
     }
 
     public boolean isLocked() {
