@@ -4,6 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.MalformedURLException;
+import java.util.Collections;
+import java.util.List;
 
 public class Main {
 
@@ -69,7 +71,10 @@ public class Main {
         }
 
         c.crawl();
-        for (String s : c.getResults()) {
+
+        List<String> results = c.getResults();
+        Collections.sort(results);
+        for (String s : results) {
             System.out.println(s);
             log.info(s);
         }

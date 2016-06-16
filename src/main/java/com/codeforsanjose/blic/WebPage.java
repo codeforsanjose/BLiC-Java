@@ -2,10 +2,11 @@ package com.codeforsanjose.blic;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class WebPage {
+public class WebPage implements Comparable<WebPage>{
     private AtomicBoolean locked;
     private WebPage linkedFromPage;
     private URL url;
@@ -14,7 +15,7 @@ public class WebPage {
     private AtomicInteger failCount;
 
 
-    private String failReason;
+    private ArrayList<String> failReasons;
 
 
     public WebPage(WebPage parent, URL url) {
@@ -22,6 +23,7 @@ public class WebPage {
         this.url = url;
         this.status = null;
         this.depth = 0;
+        this.failReasons = new ArrayList<>();
         this.failCount = new AtomicInteger(0);
         this.locked = new AtomicBoolean(false);
     }
@@ -62,12 +64,12 @@ public class WebPage {
         this.failCount.addAndGet(1);
     }
 
-    public String getFailReason() {
-        return failReason;
+    public String getFailReasons() {
+        return "["+String.join(",",this.failReasons)+"]";
     }
 
     public void setFailReason(String failReason) {
-        this.failReason = failReason;
+        this.failReasons.add("\""+failReason+"\"");
     }
 
     public int getDepth() {
@@ -82,13 +84,22 @@ public class WebPage {
     public String toString() {
         String parentUrl = "";
         if (this.linkedFromPage != null) {
-            parentUrl = "parent: \"" + this.linkedFromPage.getUrl().toString() + "\", ";
+            parentUrl = ", parent: \"" + this.linkedFromPage.getUrl().toString() + "\"";
+        }
+        String reasons = "";
+        if (this.failReasons.size() > 0){
+            reasons = ", failure_reasons:" + this.getFailReasons();
         }
         String status_string = (this.status == null) ? "not yet checked" : this.status.toString();
-        return "http_status: " + status_string + ", failure_count: " + this.failCount + ", " + parentUrl + ", url:\"" + this.url.toString() + ", failure_reason:\"" + this.failReason + "\"";
+        return "http_status: " + status_string + ", failure_count: " + this.failCount + parentUrl + ", url:\"" + this.url.toString()+"\"" + reasons ;
     }
 
     public boolean isLocked() {
         return this.locked.get();
+    }
+
+    @Override
+    public int compareTo(WebPage o) {
+        return this.url.toString().compareTo(o.getUrl().toString());
     }
 }

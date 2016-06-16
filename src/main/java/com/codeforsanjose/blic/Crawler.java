@@ -52,7 +52,7 @@ public class Crawler implements Runnable {
                     .ignoreContentType(true)
                     .get();
             URL actual_url = new URL(doc.location());
-            if (urlEquals(base, actual_url)){
+            if (urlEquals(base, actual_url) && !urlEquals(this.webpage.getUrl(), actual_url)){
                 this.webpage.setStatus(404);
                 this.webpage.setFailReason("Redirected to homepage unexpectedly");
             }

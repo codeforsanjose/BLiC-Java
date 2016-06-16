@@ -34,6 +34,16 @@ public class URLTester {
         assertEquals(res.toString(), "https://main.com");
     }
 
+    @Test public void sameAsHomepageTest(){
+        URL base = parseUrl("http://main.com");
+        URL actual = parseUrl("http://main.com");
+        try {
+            assertTrue(urlEquals(base, actual));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Test public void sameAsHomepageQuerystringTest(){
         URL base = parseUrl("http://main.com");
         URL actual = parseUrl("http://main.com#foo");
