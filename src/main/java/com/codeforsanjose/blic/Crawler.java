@@ -52,7 +52,7 @@ public class Crawler implements Runnable {
                     .ignoreContentType(true)
                     .get();
             URL actual_url = new URL(doc.location());
-            if (urlEquals(base, actual_url) && !urlEquals(this.webpage.getUrl(), actual_url)){
+            if (urlEquals(base, actual_url) && !urlEquals(this.webpage.getUrl(), actual_url)) {
                 this.webpage.setStatus(404);
                 this.webpage.setFailReason("Redirected to homepage unexpectedly");
             }
@@ -66,15 +66,12 @@ public class Crawler implements Runnable {
 
             ArrayList<URL> absUrls = mapToAbsolute(anchors);
 
-            for (URL u: absUrls){
-                WebPage p = this.pages.get(u);
-                if (p != null){
-                    p.linkedByPageAdd(this.webpage);
-                }
-            }
-
             log.info(id + ": Found " + absUrls.size() + " links on page");
             for (URL u : absUrls) {
+                WebPage p = this.pages.get(u);
+                if (p != null) {
+                    p.linkedByPageAdd(this.webpage);
+                }
                 if (this.depth_limit > this.webpage.getDepth()) {
                     WebPage w = new WebPage(this.webpage, u);
                     w.setDepth(this.webpage.getDepth() + 1);

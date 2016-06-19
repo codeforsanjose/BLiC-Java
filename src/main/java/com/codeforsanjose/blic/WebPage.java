@@ -2,23 +2,19 @@ package com.codeforsanjose.blic;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class WebPage implements Comparable<WebPage>{
+public class WebPage implements Comparable<WebPage> {
     private AtomicBoolean locked;
     private Map<URL, WebPage> linkedFromPages;
     private URL url;
     private Integer status;
     private int depth;
     private AtomicInteger failCount;
-
-
     private ArrayList<String> failReasons;
-
 
     public WebPage(WebPage parent, URL url) {
         this.linkedFromPages = new ConcurrentHashMap<>();
@@ -36,11 +32,19 @@ public class WebPage implements Comparable<WebPage>{
         return url;
     }
 
-    public void linkedByPageAdd(WebPage page){
-        if (page == null){
+    public void linkedByPageAdd(WebPage page) {
+        if (page == null) {
             return;
         }
         this.linkedFromPages.putIfAbsent(page.getUrl(), page);
+    }
+
+    public String getLinkedFromPages() {
+        List list = new ArrayList();
+        for (URL u : this.linkedFromPages.keySet()) {
+            list.add("\"" + u.toString() + "\"");
+        }
+        return "[" + String.join(",", list) + "]";
     }
 
     public void lock() {
@@ -68,11 +72,11 @@ public class WebPage implements Comparable<WebPage>{
     }
 
     public String getFailReasons() {
-        return "["+String.join(",",this.failReasons)+"]";
+        return "[" + String.join(",", this.failReasons) + "]";
     }
 
     public void setFailReason(String failReason) {
-        this.failReasons.add("\""+failReason+"\"");
+        this.failReasons.add("\"" + failReason + "\"");
     }
 
     public int getDepth() {
@@ -85,19 +89,19 @@ public class WebPage implements Comparable<WebPage>{
 
     @Override
     public String toString() {
-        StringBuilder referenced_by = new StringBuilder();
-        referenced_by.append(", referenced_by: [");
-        for (Map.Entry<URL, WebPage> p : this.linkedFromPages.entrySet()){
-            referenced_by.append("\""+p.getKey()+"\"");
-        }
-        referenced_by.append("]");
+        StringJoiner res = new StringJoiner(",");
+        res.add("http_status:" + ((this.status == null) ? "not yet checked" : this.status.toString()));
+        res.add("url:\"" + this.url.toString()+ "\"");
 
-        String reasons = "";
-        if (this.failReasons.size() > 0){
-            reasons = ", failure_reasons:" + this.getFailReasons();
+        if (this.linkedFromPages.size() > 0) {
+            res.add("referenced_by:" + this.getLinkedFromPages());
         }
-        String status_string = (this.status == null) ? "not yet checked" : this.status.toString();
-        return "http_status: " + status_string  + ", url:\"" + this.url.toString()+"\"" + referenced_by.toString() + ", failure_count: " + this.failCount + reasons ;
+        res.add("failure_count: " + this.failCount);
+        if  (this.failReasons.size() > 0) {
+            res.add("failure_reasons:" + this.getFailReasons());
+        }
+
+        return res.toString();
     }
 
     public boolean isLocked() {
