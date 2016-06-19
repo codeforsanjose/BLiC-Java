@@ -63,9 +63,18 @@ public class Crawler implements Runnable {
             }
             log.info(id + ": Crawling " + this.name);
             Elements anchors = doc.select("a");
-            ArrayList<URL> unseenLinks = mapToAbsolute(anchors);
-            log.info(id + ": Found " + unseenLinks.size() + " new links on page");
-            for (URL u : unseenLinks) {
+
+            ArrayList<URL> absUrls = mapToAbsolute(anchors);
+
+            for (URL u: absUrls){
+                WebPage p = this.pages.get(u);
+                if (p != null){
+                    p.linkedByPageAdd(this.webpage);
+                }
+            }
+
+            log.info(id + ": Found " + absUrls.size() + " links on page");
+            for (URL u : absUrls) {
                 if (this.depth_limit > this.webpage.getDepth()) {
                     WebPage w = new WebPage(this.webpage, u);
                     w.setDepth(this.webpage.getDepth() + 1);
@@ -103,7 +112,7 @@ public class Crawler implements Runnable {
         ArrayList<URL> res = new ArrayList<>();
         for (Element a : anchors) {
             URL u = parseUrl(a.attr("abs:href"));
-            if (u != null && !pages.containsKey(u)) {
+            if (u != null) {
                 res.add(u);
             }
         }
@@ -132,7 +141,7 @@ public class Crawler implements Runnable {
                 tempUrlString = "http:" + tempUrlString;
             }
             if (tempUrlString.startsWith("http://") || tempUrlString.startsWith("https://")) {
-                res = new URL(tempUrlString);
+                res = new URL(tempUrlString.replaceAll("/$", ""));
             }
         } catch (MalformedURLException e) {
             log.warn(e);
