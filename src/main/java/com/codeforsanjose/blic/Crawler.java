@@ -63,15 +63,13 @@ public class Crawler implements Runnable {
             }
             log.info(id + ": Crawling " + this.name);
             Elements anchors = doc.select("a");
-            ArrayList<URL> unseenLinks = filterUnseen(anchors);
+            ArrayList<URL> unseenLinks = mapToAbsolute(anchors);
             log.info(id + ": Found " + unseenLinks.size() + " new links on page");
             for (URL u : unseenLinks) {
-                if (u != null && !this.pages.containsKey(u)) {
-                    if (this.depth_limit > this.webpage.getDepth()) {
-                        WebPage w = new WebPage(this.webpage, u);
-                        w.setDepth(this.webpage.getDepth() + 1);
-                        this.pages.put(u, w);
-                    }
+                if (this.depth_limit > this.webpage.getDepth()) {
+                    WebPage w = new WebPage(this.webpage, u);
+                    w.setDepth(this.webpage.getDepth() + 1);
+                    this.pages.putIfAbsent(u, w);
                 }
             }
             this.webpage.setStatus(200);
@@ -101,7 +99,7 @@ public class Crawler implements Runnable {
         return this.webpage.getUrl().getHost().equals(base.getHost());
     }
 
-    private ArrayList<URL> filterUnseen(Elements anchors) {
+    private ArrayList<URL> mapToAbsolute(Elements anchors) {
         ArrayList<URL> res = new ArrayList<>();
         for (Element a : anchors) {
             URL u = parseUrl(a.attr("abs:href"));
