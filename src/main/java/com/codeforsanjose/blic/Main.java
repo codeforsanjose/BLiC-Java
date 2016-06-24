@@ -1,11 +1,15 @@
 package com.codeforsanjose.blic;
 
+import com.codeforsanjose.blic.web.BlicMessage;
+import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.List;
+
+import static spark.Spark.get;
 
 public class Main {
 
@@ -17,12 +21,49 @@ public class Main {
                 + "|            Broken Link Checker            |\n"
                 + "+-------------------------------------------+");
 
+
+        if (args.length == 1 && args[0].equalsIgnoreCase("serve")) {
+            startWeb();
+        } else {
+            startCli(args);
+        }
+
+    }
+
+    private static void startWeb() {
+        get("/check", (req, res) ->{
+            res.type("text/json");
+            String arg_url = req.queryParams("url");
+            Integer arg_depth_limit = pacifistParseInt(req.queryParams("depth"));
+            Integer max_thread_limit = pacifistParseInt(req.queryParams("nthreads"));
+            Integer arg_fail_tolerance = pacifistParseInt(req.queryParams("nfails"));
+
+            if (arg_url == null || arg_url.length() < 1 ) {
+               return new Gson().toJson(new BlicMessage("must provide URL", BlicMessage.types.error));
+            }
+
+            arg_depth_limit = (arg_depth_limit == null) ? 3 : arg_depth_limit;
+            arg_fail_tolerance = (arg_fail_tolerance == null) ? 3 : arg_fail_tolerance;
+
+            CrawlController c = null;
+            try {
+                c = new CrawlController(arg_url, arg_depth_limit, arg_fail_tolerance, max_thread_limit);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            c.crawl();
+            List<WebPage> results = c.getRawResults();
+            return new Gson().toJson(results);
+
+        });
+    }
+
+    private static void startCli(String[] args) {
         String arg_url;
         Integer arg_depth_limit = null;
         Integer arg_fail_tolerance = null;
         Integer max_thread_limit = null;
         CrawlController c = null;
-
         if (args.length == 0) {
             System.out.println(getUsage());
             System.exit(-1);
@@ -108,6 +149,22 @@ public class Main {
             res = Integer.parseInt(args[argn]);
         } catch (NumberFormatException nfe) {
             System.out.println(errmessage);
+        }
+        return res;
+    }
+
+    /**
+     * Try to parse the integer, otherwise shut up.
+     */
+    static Integer pacifistParseInt(String maybeInt) {
+        if (maybeInt == null || maybeInt.length() < 1){
+            return null;
+        }
+        Integer res = null;
+        try {
+            res = Integer.parseInt(maybeInt);
+        } catch (NumberFormatException nfe) {
+            // don't careSystem.out.println(nfe);
         }
         return res;
     }

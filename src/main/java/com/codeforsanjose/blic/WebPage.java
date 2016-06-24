@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class WebPage implements Comparable<WebPage>{
-    private AtomicBoolean locked;
+    private transient AtomicBoolean locked;
     private WebPage linkedFromPage;
     private URL url;
     private Integer status;

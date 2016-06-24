@@ -25,7 +25,7 @@ public class CrawlController {
     private URL base_url;
     private static final Logger log = LogManager.getLogger(CrawlController.class);
 
-    public CrawlController(String base_url, int depth_limit) throws MalformedURLException {
+    public CrawlController(String base_url, Integer depth_limit) throws MalformedURLException {
         this.base_url = new URL(base_url);
         this.fail_tolerance = 3;
         this.depth_limit = depth_limit;
@@ -33,7 +33,7 @@ public class CrawlController {
         this.crawler_id = 0;
     }
 
-    public CrawlController(String base_url, int depth_limit, int fail_tolerance) throws MalformedURLException {
+    public CrawlController(String base_url, Integer depth_limit, Integer fail_tolerance) throws MalformedURLException {
         this.base_url = new URL(base_url);
         this.fail_tolerance = fail_tolerance;
         this.depth_limit = depth_limit;
@@ -41,11 +41,13 @@ public class CrawlController {
         this.crawler_id = 0;
     }
 
-    public CrawlController(String base_url, int depth_limit, int fail_tolerance, int max_thread_limit) throws MalformedURLException {
+    public CrawlController(String base_url, Integer depth_limit, Integer fail_tolerance, Integer max_thread_limit) throws MalformedURLException {
         this.base_url = new URL(base_url);
         this.fail_tolerance = fail_tolerance;
-        this.max_thread_limit = max_thread_limit;
-        this.useFixedThreadPool = true;
+        if (max_thread_limit != null) {
+            this.max_thread_limit = max_thread_limit;
+            this.useFixedThreadPool = true;
+        }
         this.depth_limit = depth_limit;
         this.crawler_id = 0;
     }
@@ -79,6 +81,15 @@ public class CrawlController {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<WebPage> getRawResults() {
+        ArrayList<WebPage> res = new ArrayList<>();
+        for (Object o : pages.entrySet()) {
+            Map.Entry<String, WebPage> cur = (Map.Entry<String, WebPage>) o;
+            res.add(cur.getValue());
+        }
+        return res;
     }
 
     public List<String> getResults() {

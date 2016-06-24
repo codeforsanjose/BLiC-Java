@@ -63,4 +63,12 @@ public class URLTester {
             e.printStackTrace();
         }
     }
+
+    @Test public void sameAsHomepageLiveTest(){
+        // these three all result in the same:
+        // http://www.vta.org/news-and-media/newsroom/pagedoesnotexist
+        // http://www.vta.org/index
+        // http://www.vta.org
+
+    }
 }
