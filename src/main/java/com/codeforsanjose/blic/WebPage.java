@@ -36,7 +36,7 @@ public class WebPage implements Comparable<WebPage> {
         if (u == null) {
             return;
         }
-        if (!this.linkedFromPages.contains(u)) {
+        if (!this.linkedFromPages.contains(u.toString())) {
             this.linkedFromPages.add(u.toString());
         }
     }

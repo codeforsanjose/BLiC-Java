@@ -46,7 +46,8 @@ public class Crawler implements Runnable {
         }
         try {
             doc = Jsoup.connect(this.webpage.getUrl().toString())
-                    .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1")
+                    //.userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1")
+                    .userAgent("BLiC Broken Link Checker")
                     .referrer("http://www.google.com")
                     .followRedirects(true)
                     .ignoreContentType(true)
