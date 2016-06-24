@@ -52,7 +52,7 @@ public class Crawler implements Runnable {
                     .ignoreContentType(true)
                     .get();
             URL actual_url = new URL(doc.location());
-            if (urlEquals(base, actual_url) && !urlEquals(this.webpage.getUrl(), actual_url)){
+            if (urlEquals(base, actual_url) && !urlEquals(this.webpage.getUrl(), actual_url)) {
                 this.webpage.setStatus(404);
                 this.webpage.setFailReason("Redirected to homepage unexpectedly");
             }
@@ -63,15 +63,19 @@ public class Crawler implements Runnable {
             }
             log.info(id + ": Crawling " + this.name);
             Elements anchors = doc.select("a");
-            ArrayList<URL> unseenLinks = filterUnseen(anchors);
-            log.info(id + ": Found " + unseenLinks.size() + " new links on page");
-            for (URL u : unseenLinks) {
-                if (u != null && !this.pages.containsKey(u)) {
-                    if (this.depth_limit > this.webpage.getDepth()) {
-                        WebPage w = new WebPage(this.webpage, u);
-                        w.setDepth(this.webpage.getDepth() + 1);
-                        this.pages.put(u, w);
-                    }
+
+            ArrayList<URL> absUrls = mapToAbsolute(anchors);
+
+            log.info(id + ": Found " + absUrls.size() + " links on page");
+            for (URL u : absUrls) {
+                WebPage p = this.pages.get(u);
+                if (p != null && !u.equals(this.webpage.getUrl())) {
+                    p.linkedByPageAdd(this.webpage.getUrl());
+                }
+                if (this.depth_limit > this.webpage.getDepth()) {
+                    WebPage w = new WebPage(this.webpage, u);
+                    w.setDepth(this.webpage.getDepth() + 1);
+                    this.pages.putIfAbsent(u, w);
                 }
             }
             this.webpage.setStatus(200);
@@ -101,11 +105,11 @@ public class Crawler implements Runnable {
         return this.webpage.getUrl().getHost().equals(base.getHost());
     }
 
-    private ArrayList<URL> filterUnseen(Elements anchors) {
+    private ArrayList<URL> mapToAbsolute(Elements anchors) {
         ArrayList<URL> res = new ArrayList<>();
         for (Element a : anchors) {
             URL u = parseUrl(a.attr("abs:href"));
-            if (u != null && !pages.containsKey(u)) {
+            if (u != null) {
                 res.add(u);
             }
         }
@@ -134,7 +138,7 @@ public class Crawler implements Runnable {
                 tempUrlString = "http:" + tempUrlString;
             }
             if (tempUrlString.startsWith("http://") || tempUrlString.startsWith("https://")) {
-                res = new URL(tempUrlString);
+                res = new URL(tempUrlString.replaceAll("/$", ""));
             }
         } catch (MalformedURLException e) {
             log.warn(e);
