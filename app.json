@@ -1,0 +1,6 @@
+{
+  "name": "BLiC",
+  "description": "Broken Link Checker written in Java",
+  "image": "heroku/gradle",
+  "addons": [ "heroku-postgresql" ]
+}
