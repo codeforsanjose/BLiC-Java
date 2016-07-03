@@ -1,1 +1,1 @@
-web: java $JAVA_OPTS -jar build/libs/blic.jar --serve
+web: java $JAVA_OPTS -jar build/libs/blic.jar serve
