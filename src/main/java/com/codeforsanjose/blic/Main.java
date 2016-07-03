@@ -9,7 +9,7 @@ import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.List;
 
-import static spark.Spark.get;
+import static spark.Spark.*;
 
 public class Main {
 
@@ -30,7 +30,16 @@ public class Main {
 
     }
 
+    static int getHerokuAssignedPort() {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        if (processBuilder.environment().get("PORT") != null) {
+            return Integer.parseInt(processBuilder.environment().get("PORT"));
+        }
+        return 4567; //return default port if heroku-port isn't set (i.e. on localhost)
+    }
+
     private static void startWeb() {
+        port(getHerokuAssignedPort());
         get("/check", (req, res) ->{
             res.type("text/json");
             String arg_url = req.queryParams("url");
