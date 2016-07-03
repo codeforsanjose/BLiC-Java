@@ -54,13 +54,13 @@ artifacts {
 
 // Heroku stuff
 task stage() {
-    dependsOn clean, war
+    dependsOn clean, fatJar
 }
 tasks.stage.doLast() {
     delete fileTree(dir: "build/distributions")
     delete fileTree(dir: "build/assetCompile")
     delete fileTree(dir: "build/distributions")
-    delete fileTree(dir: "build/libs", exclude: "*.war")
+    delete fileTree(dir: "build/libs", exclude: "*.jar")
 }
 war.mustRunAfter clean
 
