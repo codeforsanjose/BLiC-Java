@@ -35,6 +35,7 @@ dependencies {
 
 
 
+
 task fatJar(type: Jar) {
     manifest {
         attributes "Main-Class": "com.codeforsanjose.blic.Main"
@@ -49,3 +50,25 @@ task fatJar(type: Jar) {
 artifacts {
     archives fatJar
 }
+
+
+// Heroku stuff
+task stage() {
+    dependsOn clean, war
+}
+tasks.stage.doLast() {
+    delete fileTree(dir: "build/distributions")
+    delete fileTree(dir: "build/assetCompile")
+    delete fileTree(dir: "build/distributions")
+    delete fileTree(dir: "build/libs", exclude: "*.war")
+}
+war.mustRunAfter clean
+
+task copyToLib(type: Copy) {
+    into "$buildDir/server"
+    from(configurations.compile) {
+        include "webapp-runner*"
+    }
+}
+
+stage.dependsOn(copyToLib)
