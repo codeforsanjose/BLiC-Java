@@ -4,6 +4,9 @@ import com.codeforsanjose.blic.web.BlicMessage;
 import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import spark.Filter;
+import spark.Request;
+import spark.Response;
 
 import java.net.MalformedURLException;
 import java.util.Collections;
@@ -38,8 +41,20 @@ public class Main {
         return 4567; //return default port if heroku-port isn't set (i.e. on localhost)
     }
 
+    private static void enableCORS(final String origin, final String methods, final String headers) {
+        before(new Filter() {
+            @Override
+            public void handle(Request request, Response response) {
+                response.header("Access-Control-Allow-Origin", origin);
+                response.header("Access-Control-Request-Method", methods);
+                response.header("Access-Control-Allow-Headers", headers);
+            }
+        });
+    }
+
     private static void startWeb() {
         port(getHerokuAssignedPort());
+        enableCORS("*", "*", "*");
         get("/check", (req, res) ->{
             res.type("text/json");
             String arg_url = req.queryParams("url");
